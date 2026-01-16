@@ -35,6 +35,25 @@ export default function QuizEditor({ quiz, setQuiz, onStartQuiz }) {
     setQuiz(updated);
   };
 
+
+const saveQuiz = async ()=> {
+  const token = localStorage.getItem("token");
+  const response = await fetch("http://localhost:8000/quiz/save",{
+    method: "POST",
+    headers:{
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(
+      {
+        title:"My Quiz",
+        questions: quiz.questions
+      })
+  });
+  const data = await response.json();
+  alert("Quiz saved: " + data.quiz_id);
+  };
+
   return (
     <div>
       <h2>Edit Quiz</h2>
@@ -69,7 +88,7 @@ export default function QuizEditor({ quiz, setQuiz, onStartQuiz }) {
           </select>
         </div>
       ))}
-
+      <button onClick={saveQuiz}>Save Quiz</button>
       <button onClick={onStartQuiz}>Start Quiz</button>
     </div>
   );

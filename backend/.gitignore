@@ -9,3 +9,6 @@ instance/
 logs/
 *.log
 test.py
+migrations/
+*.sqlite3
+*.db
