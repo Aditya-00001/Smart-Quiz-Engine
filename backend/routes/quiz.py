@@ -40,3 +40,42 @@ def save_quiz(quiz_data: dict, user_id: int=Depends(verify_access_token), db: Se
         except Exception as e:
             db.rollback()
             return {"error": str(e)}
+        
+@quiz.get("/quiz/my")
+def get_my_quizzes(
+    user_id: int = Depends(verify_access_token),
+    db: Session = Depends(get_db)
+):
+    quizzes = db.query(Quiz).filter(Quiz.user_id==user_id).all()
+    return [
+        {
+            "id": q.id,
+            "title": q.title,
+            "created_at": q.created_at
+        }
+        for q in quizzes
+    ]
+
+@quiz.get("/quiz/{quiz_id}")
+def get_quiz_by_id(
+    quiz_id: int,
+    db: Session = Depends(get_db)
+):
+    quiz = db.query(Quiz).filter(Quiz.id==quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail={"error": "Quiz not found"})
+    
+    questions = db.query(Question).filter(Question.quiz_id==quiz_id).all()
+    return {
+        "id": quiz.id,
+        "title": quiz.title,
+        "questions": [
+            {
+                "id": q.id,
+                "question": q.question_text,
+                "options": q.options,
+                "answer": q.correct_answer
+            }
+            for q in questions
+        ]
+    }

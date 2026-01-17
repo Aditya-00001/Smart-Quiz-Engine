@@ -6,6 +6,7 @@ from routes.upload import router as uploadRouter
 from routes.parse import parserouter as parseRouter
 from routes.auth import auth as authRouter
 from routes.quiz import quiz as quizRouter
+from routes.attempt import attempt as attemptRouter
 
 from database import engine, Base
 import models
@@ -13,7 +14,6 @@ import models
 app = FastAPI()
 Base.metadata.create_all(bind=engine) #create tables
 
-# 🔥 THIS IS THE FIX
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # Vite dev server
@@ -26,6 +26,8 @@ app.include_router(uploadRouter, tags=["Upload"])
 app.include_router(parseRouter, tags=["Parse"])
 app.include_router(authRouter, tags=["Auth"])
 app.include_router(quizRouter, tags=["Quiz"])
+app.include_router(attemptRouter, tags=["Attempt"])
+
 
 @app.get("/")
 def read_root():

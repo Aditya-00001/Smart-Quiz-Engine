@@ -1,5 +1,5 @@
 const BaseURL = "http://localhost:8000/api";
-
+const QuizURL = "http://localhost:8000/quiz";
 export async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -23,6 +23,24 @@ export async function parseText(rawText) {
 
   return res.json();
 }
+
+export async function getMyQuizzes(){
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${QuizURL}/my`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+  return res.json();
+}
+
+export async function getQuizById(id){
+  const res = await fetch(`${QuizURL}/${id}`);
+  return res.json();
+}
+
+
 
 function getAuthHeaders() {
   const token = localStorage.getItem("token");
