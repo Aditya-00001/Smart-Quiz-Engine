@@ -5,6 +5,7 @@ import QuizPlay from "./components/QuizPlay";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import MyQuizzes from "./components/MyQuizzes";
+import QuizAnalytics from "./components/QuizAnalytics";
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -12,6 +13,8 @@ function App() {
   const [quizData, setQuizData] = useState(null);
   const [playMode, setPlayMode] = useState(false);
   const [viewMyQuizzes, setViewMyQuizzes] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [selectedQuizId, setSelectedQuizId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -65,8 +68,21 @@ function App() {
             setQuizData(data);
             setViewMyQuizzes(false);
           }}
+          onAnalytics={(id) => {
+            setSelectedQuizId(id);
+            setViewMyQuizzes(false);
+            setShowAnalytics(true);
+          }}
         />
       )}
+
+      {showAnalytics && (
+        <QuizAnalytics
+          quizId={selectedQuizId}
+          onBack={() => setShowAnalytics(false)}
+        />
+      )}
+
 
       {!viewMyQuizzes && !quizData && <Upload onQuizReady={setQuizData} />}
 

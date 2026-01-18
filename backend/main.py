@@ -7,6 +7,7 @@ from routes.parse import parserouter as parseRouter
 from routes.auth import auth as authRouter
 from routes.quiz import quiz as quizRouter
 from routes.attempt import attempt as attemptRouter
+from routes.analytics import router as analyticsRouter
 
 from database import engine, Base
 import models
@@ -27,7 +28,7 @@ app.include_router(parseRouter, tags=["Parse"])
 app.include_router(authRouter, tags=["Auth"])
 app.include_router(quizRouter, tags=["Quiz"])
 app.include_router(attemptRouter, tags=["Attempt"])
-
+app.include_router(analyticsRouter, tags=["Analytics"])
 
 @app.get("/")
 def read_root():

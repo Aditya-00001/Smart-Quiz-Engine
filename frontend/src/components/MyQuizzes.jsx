@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMyQuizzes } from "../api";
 
-export default function MyQuizzes({ onOpen }) {
+export default function MyQuizzes({ onOpen, onAnalytics }) {
   const [quizzes, setQuizzes] = useState([]);
 
   useEffect(() => {
@@ -19,6 +19,7 @@ export default function MyQuizzes({ onOpen }) {
           <button onClick={() => onOpen(q.id)}>
             {q.title} — {new Date(q.created_at).toLocaleString()}
           </button>
+          <button onClick={() => onAnalytics(q.id)}>Analytics</button>
         </div>
       ))}
     </div>
