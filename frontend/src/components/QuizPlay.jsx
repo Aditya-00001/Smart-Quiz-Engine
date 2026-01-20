@@ -5,22 +5,17 @@ export default function QuizPlay({ quiz }) {
   const [score, setScore] = useState(null);
 
   const submit = async () => {
-    let s = 0;
-    quiz.questions.forEach((q, i) => {
-      if (answers[i] === q.answer) s++;
-    });
+    const res = await fetch(
+      `http://localhost:8000/quiz/${quiz.id}/attempts/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers })
+      }
+    );
 
-    setScore(s);
-
-    await fetch(`http://localhost:8000/quiz/${quiz.id}/attempts/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        answers,
-        score: s,
-        total: quiz.questions.length
-      })
-    });
+    const data = await res.json();
+    setScore(data.score);
   };
 
   return (

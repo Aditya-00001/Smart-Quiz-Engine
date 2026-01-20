@@ -79,3 +79,71 @@ def get_quiz_by_id(
             for q in questions
         ]
     }
+    
+@quiz.get("/quiz/{quiz_id}/play")
+def play_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db)
+):
+    quiz = db.query(Quiz).filter(Quiz.id==quiz_id, Quiz.is_public==True).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail={"error": "Quiz not found or not public"})
+    questions = db.query(Question).filter(Question.quiz_id==quiz_id).all()
+    return {
+        "id": quiz.id,
+        "title": quiz.title,
+        "questions": [
+            {
+                "id": q.id,
+                "question": q.question_text,
+                "options": q.options
+            }
+            for q in questions
+        ]
+    }
+
+@quiz.put("/quiz/{quiz_id}/publish")
+def publish_quiz(
+    quiz_id: int,
+    user_id: int = Depends(verify_access_token),
+    db: Session = Depends(get_db)
+):
+    quiz = db.query(Quiz).filter(Quiz.id==quiz_id, Quiz.user_id==user_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail={"error": "Quiz not found or unauthorized"})
+    
+    quiz.is_public = True
+    db.commit()
+    return {"message": "Quiz published successfully and is now public"}
+
+@quiz.put("/quiz/{quiz_id}")
+def update_quiz(
+    quiz_id: int,
+    payload: dict,
+    user_id: int = Depends(verify_access_token),
+    db: Session = Depends(get_db)
+):
+    quiz = db.query(Quiz).filter(
+        Quiz.id == quiz_id,
+        Quiz.user_id == user_id
+    ).first()
+
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    quiz.title = payload["title"]
+
+    # delete old questions
+    db.query(Question).filter(Question.quiz_id == quiz_id).delete()
+
+    # insert updated questions
+    for q in payload["questions"]:
+        db.add(Question(
+            quiz_id=quiz_id,
+            question_text=q["question"],
+            options=q["options"],
+            correct_answer=q["answer"]
+        ))
+
+    db.commit()
+    return {"message": "Quiz updated"}

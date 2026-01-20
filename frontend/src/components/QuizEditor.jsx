@@ -1,3 +1,4 @@
+import { useState } from "react";
 export default function QuizEditor({ quiz, setQuiz, onStartQuiz }) {
 
   const updateQuestion = (qIdx, newQuestion) => {
@@ -35,28 +36,70 @@ export default function QuizEditor({ quiz, setQuiz, onStartQuiz }) {
     setQuiz(updated);
   };
 
-
-const saveQuiz = async ()=> {
+// const [saving, setSaving] = useState(false);
+const saveQuiz = async () => {
   const token = localStorage.getItem("token");
-  const response = await fetch("http://localhost:8000/quiz/save",{
-    method: "POST",
-    headers:{
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(
+
+  // UPDATE
+  if (quiz.id) {
+    const res = await fetch(
+      `http://localhost:8000/quiz/${quiz.id}`,
       {
-        title:"My Quiz",
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: quiz.title || "Untitled Quiz",
+          questions: quiz.questions
+        })
+      }
+    );
+
+    if (res.ok) {
+      alert("Quiz updated successfully");
+    }
+    return;
+  }
+
+  // CREATE
+  const res = await fetch(
+    "http://localhost:8000/quiz/save",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        title: quiz.title || "Untitled Quiz",
         questions: quiz.questions
       })
-  });
-  const data = await response.json();
-  alert("Quiz saved: " + data.quiz_id);
-  };
+    }
+  );
+
+  const data = await res.json();
+  setQuiz({ ...quiz, id: data.quiz_id });
+  alert("Quiz saved successfully");
+};
 
   return (
     <div>
       <h2>Edit Quiz</h2>
+
+      <input
+        type="text"
+        placeholder="Quiz title"
+        value={quiz.title || ""}
+        onChange={(e) =>
+          setQuiz({
+            ...quiz,
+            title: e.target.value
+          })
+        }
+        style={{ width: "100%", marginBottom: 20 }}
+      />
 
       {quiz.questions.map((q, idx) => (
         <div key={idx} style={{ marginBottom: 20 }}>
@@ -88,8 +131,36 @@ const saveQuiz = async ()=> {
           </select>
         </div>
       ))}
-      <button onClick={saveQuiz}>Save Quiz</button>
-      <button onClick={onStartQuiz}>Start Quiz</button>
+      <button onClick={() => {
+        saveQuiz();
+        }}>{!quiz.id? "Save Quiz":"Update Quiz"}
+      </button>
+
+
+      <button onClick={() => {
+        if (!quiz.id) {
+          alert("Please save quiz before starting");
+          return;
+        }
+        onStartQuiz();
+      }}>
+        Start Quiz
+      </button>
+
+
+      <button
+        disabled={!quiz.id}
+        onClick={async () => {
+          const token = localStorage.getItem("token");
+          await fetch(`http://localhost:8000/quiz/${quiz.id}/publish`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          alert(`Public link available at http://localhost:5173/quiz/${quiz.id}/play`);
+        }}
+      >
+        Publish & Share
+      </button>
     </div>
   );
 }
