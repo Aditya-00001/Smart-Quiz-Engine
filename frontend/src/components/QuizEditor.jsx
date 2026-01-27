@@ -156,7 +156,13 @@ const saveQuiz = async () => {
             method: "PUT",
             headers: { Authorization: `Bearer ${token}` }
           });
-          alert(`Public link available at http://localhost:5173/quiz/${quiz.id}/play`);
+          alert(`
+              Public Link:
+              http://localhost:5173/quiz/${quiz.id}/play
+
+              Embed Code:
+              <iframe src="http://localhost:5173/embed/quiz/${quiz.id}" width="100%" height="600"></iframe>
+          `);
         }}
       >
         Publish & Share

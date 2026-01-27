@@ -5,17 +5,28 @@ export default function Signup({onSwitch}){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSignup = async ()=>{
+    const handleSignup = async () => {
+        if (!email || !password) {
+            alert("Email and password are required");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters");
+            return;
+        }
         const res = await signup(email, password);
 
-        if (res.error){
+        if (res.error) {
             alert(res.error);
+            return; // 🚨 stop here
         }
+
         alert("Signup successful! Please log in.");
         onSwitch();
     };
     return (
-        <div>
+        <div className='front'>
             <h2>Signup</h2>
             <input 
                 type="email" 

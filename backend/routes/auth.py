@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models.user import User
@@ -15,6 +15,9 @@ def get_db():
         db.close()
 @auth.post("/auth/signup")
 def signup(payload: AuthRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+    if user:
+        raise HTTPException(status_code=400, detail="User already exists")
     hashed_password = hash_password(payload.password)
     new_user = User(email=payload.email, password_hash=hashed_password)
     db.add(new_user)
@@ -26,6 +29,6 @@ def signup(payload: AuthRequest, db: Session = Depends(get_db)):
 def login(payload: AuthRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.password_hash):
-        return {"error":"Invalid credentials"}
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     token = create_access_token(user.id)
     return {"access_token": token}

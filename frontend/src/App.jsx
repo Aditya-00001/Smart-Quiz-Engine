@@ -1,3 +1,4 @@
+import './App.css';
 import { useEffect, useState } from "react";
 import Upload from "./components/Upload";
 import QuizEditor from "./components/QuizEditor";
@@ -38,6 +39,21 @@ function App() {
 
   return (
     <div style={{ padding: 20 }}>
+      
+      <div style={{ marginBottom: 15 }}>
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            setLoggedIn(false);
+            setQuizData(null);
+            setPlayMode(false);
+            setViewMyQuizzes(false);
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
       <div style={{ marginBottom: 15 }}>
         <button
           onClick={() => {

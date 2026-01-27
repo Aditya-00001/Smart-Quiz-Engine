@@ -15,7 +15,7 @@ export default function Login({onLogin, onSwitch}){
         onLogin();
     };
     return (
-        <div>
+        <div className='front'>
         <h2>Login</h2>
         <input 
             type="email" 
