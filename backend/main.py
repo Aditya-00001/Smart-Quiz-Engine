@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from routes.upload import router as uploadRouter
@@ -23,6 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(uploadRouter, tags=["Upload"])
 app.include_router(parseRouter, tags=["Parse"])
 app.include_router(authRouter, tags=["Auth"])

@@ -39,6 +39,7 @@ async def uploadFile(file: UploadFile = File(...)):
 
         elif extension in [".jpg", ".jpeg", ".png"]:
             text = OCRService.extract_text_from_image(file_stream)
+            print(text)
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

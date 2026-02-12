@@ -25,6 +25,13 @@ export default function QuizPlay({ quiz }) {
       {quiz.questions.map((q, i) => (
         <div key={i}>
           <p>{q.question}</p>
+          {q.image && (
+            <img
+              src={q.image}
+              alt="Question"
+              style={{ maxWidth: "100%", marginBottom: 10 }}
+            />
+          )}
           {Object.entries(q.options).map(([k, v]) => (
             <label key={k}>
               <input

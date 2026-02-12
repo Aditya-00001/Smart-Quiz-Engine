@@ -18,8 +18,9 @@ def signup(payload: AuthRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email).first()
     if user:
         raise HTTPException(status_code=400, detail="User already exists")
+    email = payload.email.lower().strip()
     hashed_password = hash_password(payload.password)
-    new_user = User(email=payload.email, password_hash=hashed_password)
+    new_user = User(email=email, password_hash=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -27,7 +28,8 @@ def signup(payload: AuthRequest, db: Session = Depends(get_db)):
 
 @auth.post("/auth/login")
 def login(payload: AuthRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email).first()
+    email = payload.email.lower().strip()
+    user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     token = create_access_token(user.id)

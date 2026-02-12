@@ -1,5 +1,7 @@
 from utils.jwt_utils import verify_access_token
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import shutil
+import uuid
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models.quiz import Quiz, Question
@@ -31,6 +33,7 @@ def save_quiz(quiz_data: dict, user_id: int=Depends(verify_access_token), db: Se
                 new_question = Question(
                     quiz_id=new_quiz.id,
                     question_text=q["question"],
+                    question_image=q.get("image"),
                     options=q["options"],
                     correct_answer=q["answer"]
                 )
@@ -73,6 +76,7 @@ def get_quiz_by_id(
             {
                 "id": q.id,
                 "question": q.question_text,
+                "image": q.question_image,
                 "options": q.options,
                 "answer": q.correct_answer
             }
@@ -96,6 +100,7 @@ def play_quiz(
             {
                 "id": q.id,
                 "question": q.question_text,
+                "image": q.question_image,
                 "options": q.options
             }
             for q in questions
@@ -139,11 +144,24 @@ def update_quiz(
     # insert updated questions
     for q in payload["questions"]:
         db.add(Question(
-            quiz_id=quiz_id,
+            quiz_id=quiz.id,
             question_text=q["question"],
+            question_image=q.get("image"),
             options=q["options"],
             correct_answer=q["answer"]
         ))
 
     db.commit()
     return {"message": "Quiz updated"}
+
+@quiz.post("/upload-image")
+def upload_image(file: UploadFile = File(...)):
+    filename = f"{uuid.uuid4()}_{file.filename}"
+    filepath = f"static/uploads/{filename}"
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {
+        "url": f"http://localhost:8000/static/uploads/{filename}"
+    }

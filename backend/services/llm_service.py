@@ -138,7 +138,7 @@ class LLMService:
             }}
 
             TEXT:
-            \"\"\"{raw_text[:8000]}\"\"\"
+            \"\"\"{raw_text}\"\"\"
             """
 
             try:

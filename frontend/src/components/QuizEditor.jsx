@@ -109,6 +109,41 @@ const saveQuiz = async () => {
             onChange={e => updateQuestion(idx, e.target.value)}
           />
 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const formData = new FormData();
+              formData.append("file", e.target.files[0]);
+
+              const res = await fetch(
+                "http://localhost:8000/upload-image",
+                {
+                  method: "POST",
+                  body: formData
+                }
+              );
+
+              const data = await res.json();
+
+              const updated = [...quiz.questions];
+              updated[idx].image = data.url;
+
+              setQuiz({ ...quiz, questions: updated });
+            }}
+          />
+
+          {/* Optional preview */}
+          {q.image && (
+            <img
+              src={q.image}
+              alt="preview"
+              style={{ maxWidth: "200px", marginTop: 10 }}
+            />
+          )}
+
+          {/* Options rendering continues here */}
+
           {Object.entries(q.options).map(([key, val]) => (
             <div key={key}>
               {key}:{" "}
